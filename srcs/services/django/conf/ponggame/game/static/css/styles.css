@@ -1,0 +1,156 @@
+@font-face {
+	font-family: myFont;
+	src: url(../fonts/boa-construktor-font/BoaConstruktorBold-zrjL4.ttf);
+}
+
+* {
+	font-family: myFont;
+	padding: 0;
+	margin: 0;
+}
+
+body {
+	background-color: black;
+}
+
+header {
+	width: 100%;
+	height: 4em;
+	background-color: rgba(0, 0, 0, 0.2);
+	box-shadow: 0 0 8px 0 black;
+	position: fixed;
+}
+
+main {
+	width: 100%;
+	height: calc(100vh - 4em);
+	top: 4em;
+	position: fixed;
+}
+
+#app {
+	overflow-y: auto;
+}
+
+footer {
+	width: 100%;
+	background-color: rgba(255, 0, 0, 0.1);
+	position: fixed;
+	box-shadow: 0 0 8px 0 black;
+}
+
+@keyframes MountainImage {
+	from {opacity: 0;}
+	to {opacity: 0.1;}
+}
+
+.mountain {
+/* 	background-image: 	background-size: cover; */
+	background-image: url(../images/background/bg2.jpg);
+	background-position: center;
+	background-repeat: no-repeat;
+	opacity: 0.1;
+	height: 100%;
+	width: 100%;
+	position: absolute;
+	animation-name: MountainImage;
+	animation-duration: 1.5s;
+}
+
+/* Navbar */
+.Navbar {
+	display: flex;
+	height: 100%;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.NavItem {
+	color: white;
+	text-decoration: none;
+	max-height: 4em;
+	font-size: 30px;
+	padding: 1rem;
+}
+
+.NavLink {
+	text-decoration: none;
+}
+
+.NavLink:hover {
+	background-color: rgba(255, 255, 255, 1);
+	color: black;
+	/* background-color: rgba(0, 0, 0, 0.3);
+	border-left: 3px rgba(0, 0, 0, 0.6) solid;
+	border-right: 3px rgba(0, 0, 0, .6) solid; */
+	/* 	text-decoration: underline; */
+}
+
+.NavButton {
+	background-color: transparent;
+	border: 0;
+}
+/* ------------ */
+
+/* Side Tab */
+.SideTab {
+	position: fixed;
+	height: 100%;
+	width: 400px;
+	z-index: 10;
+}
+
+.SideTabUpper {
+	width: 100%;
+	display: flex;
+	justify-content: space-between;
+	border-bottom: 3px white solid;
+}
+
+.TabTitle {
+	margin: 0;
+}
+
+.TabClose {
+	margin: 0;
+	border: 0;
+	flex: 0 0 4rem;
+	text-align: center;
+	background: transparent;
+	border-left: 3px white solid;
+}
+/* ---------- */
+
+/* Friends Side Tab */
+.FriendsTab {
+	color: white;
+	background: linear-gradient(black 30%, rgba(0, 0, 0, 0.4));
+	box-shadow: 0 0 8px black;
+	right: 0;
+}
+
+.Friend {
+	display: flex;
+	margin: 1rem;
+}
+
+.FriendCard {
+	width: 100%;
+	background: grey;
+	padding: 5px;
+}
+/* ------------- */
+
+/* Scrollbar css */
+::-webkit-scrollbar {
+	width: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+	background: white;
+}
+
+::-webkit-scrollbar-track {
+	background-color: rgba(0, 0, 0, 0.2);
+	box-shadow: 0 0 4px 0 black;
+}

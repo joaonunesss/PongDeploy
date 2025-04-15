@@ -1,0 +1,221 @@
+services:
+############################## WEB  ##############################
+  nginx:
+    image: nginx:transcendence
+    container_name: nginx
+    build: ./services/nginx
+    ports:
+      - "8443:443" #HTTPS
+    volumes:
+      - ./services/nginx/logs:/var/log/nginx
+    networks:
+      - ft_transcendence
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      - django
+
+  django:
+    image: django:transcendence
+    container_name: django
+    build: ./services/django
+    volumes:
+      - backend:/app
+      - ./services/django/logs:/app/logs/
+      - blockchain_volume:/app/abi # NEW
+    networks:
+      - ft_transcendence
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      - db
+
+  db:
+    build: ./services/postgresql
+    image: postgresql:transcendence
+    container_name: db
+    ports:
+      - "5432:5432"
+    env_file:
+      - .env
+    volumes:
+      - postgresql_data:/var/lib/postgresql/data
+    networks:
+      - ft_transcendence
+    restart: on-failure
+############################## BLOCKCHAIN ##############################
+  ganache:
+    image: ganache:transcendence
+    container_name: ganache
+    build: ./services/ganache
+    ports:
+      - "8545:8545"
+    restart: unless-stopped
+    networks:
+      - ft_transcendence
+    volumes:
+      - truffle_volume:/etc/truffle
+      - blockchain_volume:/ganache_data
+
+  truffle:
+    image: truffle:transcendence
+    container_name: truffle
+    build: ./services/truffle
+    networks:
+      - ft_transcendence
+    depends_on:
+      - ganache
+    volumes:
+      - truffle_volume:/etc/truffle
+      - blockchain_volume:/app/blockchain_volume
+
+############################## MONITORING SYSTEM ##############################
+ 
+  prometheus:  
+    image: prom/prometheus:v3.2.0-rc.1  
+    container_name: prometheus  
+    ports:  
+      - "9090:9090"  
+    volumes:  
+      - ./services/monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml  
+      - ./services/monitoring/prometheus/alerts.yml:/etc/prometheus/alerts.yml  
+      - prometheus_data:/prometheus  
+    command:  
+      - "--config.file=/etc/prometheus/prometheus.yml"  
+      - "--storage.tsdb.retention.time=30d"  
+    networks:  
+      - ft_transcendence  
+    restart: on-failure  
+
+  grafana: # Show metrics from prometheus in dashboards
+    image: grafana/grafana:11.5.1
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GF_ADMIN_USER}
+      - GF_SECURITY_ADMIN_PASSWORD=${GF_ADMIN_PASSWORD}
+      - GF_SECURITY_ADMIN_EMAIL=${GF_ADMIN_EMAIL}
+      - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./services/monitoring/grafana/provisioning:/etc/grafana/provisioning
+      - ./services/monitoring/grafana/dashboards:/var/lib/grafana/dashboards
+      # - ./services/monitoring/grafana/grafana.ini:/etc/grafana/grafana.ini
+    depends_on:
+      - prometheus
+    networks:
+      - ft_transcendence
+    restart: on-failure
+
+  alertmanager: # For sending alerts by email when prometheus alerts are fired
+    build:
+      context: ./services/monitoring/alertmanager
+      dockerfile: Dockerfile
+    container_name: alertmanager
+    ports:
+      - "9093:9093"
+    volumes:
+      - ./services/monitoring/alertmanager/alertmanager.yml.template:/tmp/alertmanager.yml.template
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - envsubst < /tmp/alertmanager.yml.template > /etc/alertmanager.yml &&
+        /bin/alertmanager --config.file=/etc/alertmanager.yml
+    env_file:
+      - .env
+    networks:
+      - ft_transcendence
+    restart: on-failure
+
+  postgres-exporter:  
+    image: prometheuscommunity/postgres-exporter  
+    container_name: postgres-exporter  
+    ports:  
+      - "9187:9187"  
+    env_file:  
+      - .env  
+    command:  
+      - "--no-collector.wal"  
+    depends_on:  
+      - db  
+    networks:  
+      - ft_transcendence  
+    restart: on-failure  
+
+  nginx-exporter:  
+    image: nginx/nginx-prometheus-exporter  
+    container_name: nginx-exporter  
+    command:  
+      - "--nginx.scrape-uri=http://nginx:8080/stub_status"  
+    ports:  
+      - "9113:9113"  
+    depends_on:  
+      - nginx  
+    networks:  
+      - ft_transcendence  
+
+  node-exporter: # Scrape metrics from host machine and make them available to prometheus
+    image: prom/node-exporter:v1.8.2
+    container_name: node-exporter
+    ports:
+      - "9110:9100"
+    networks:
+      - ft_transcendence
+    restart: 'no'
+
+#################################### VOLUMES  ################################
+volumes:
+  backend:
+    driver: local
+    driver_opts:
+      type: none
+      device: /root/ft_transcendence/srcs/services/django/conf/ponggame
+      o: bind
+
+  truffle_volume:
+    name: truffle_volume
+    driver: local
+    driver_opts:
+      device: /root/ft_transcendence/srcs/volumes/truffle_volume
+      o: bind
+      type: none
+
+  blockchain_volume:
+    name: blockchain_volume
+    driver: local
+    driver_opts:
+      device: /root/ft_transcendence/srcs/volumes/blockchain_volume
+      o: bind
+      type: none
+
+  postgresql_data:
+    name: postgresql_data
+    driver: local
+    driver_opts:
+      device: /root/ft_transcendence/srcs/volumes/postgresql_data
+      o: bind
+      type: none
+
+  prometheus_data:
+    name: prometheus_data
+    driver: local
+    driver_opts:
+      device: /root/ft_transcendence/srcs/volumes/prometheus_data
+      o: bind
+      type: none
+
+  grafana_data:
+    name: grafana_data
+    driver: local
+    driver_opts:
+      device: /root/ft_transcendence/srcs/volumes/grafana_data
+      o: bind
+      type: none
+
+############################## NETWORK ##############################
+networks:
+  ft_transcendence:
+    name: ft_transcendence
+############################## END ##############################

@@ -1,0 +1,119 @@
+#HomeTitle {
+	margin-top: 48px;
+	margin-bottom: 1.2em;
+	font-size: 100px;
+	text-align: center;
+	color: white;
+}
+
+.PongTitle {
+	text-shadow: 10px 10px black;
+	width: fit-content;
+}
+
+.homeButton:hover, .homeButton:active {
+	background-color: black !important;
+	color: white !important;
+	border: 3px white solid;
+	padding: 1em;
+}
+
+.homeButton {
+	font-size: 25px;
+	width: 18em;
+	background-color: white;
+	color: black;
+	transition-duration: 200ms;
+	transition-property: padding, background-color;
+	transition-timing-function: linear;
+	margin-bottom: .7em;
+}
+
+.SupportButtons {
+	position: relative;
+	margin-top: 30px;
+	left: 47%;
+}
+
+.Glitch {
+	border: 3px black solid;
+	color: black;
+	background: white;
+}
+
+.Glitch:hover {
+	animation: glitch 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) both infinite;
+	color: black;
+	background: white;
+}
+
+@keyframes glitch {
+  0% {
+    transform: translate(0);
+  }
+  20% {
+    transform: translate(-4px, 4px);
+  }
+  40% {
+    transform: translate(-4px, -4px);
+  }
+  60% {
+    transform: translate(4px, 4px);
+  }
+  80% {
+    transform: translate(4px, -4px);
+  }
+  100% {
+    transform: translate(0);
+  }
+}
+
+/* .Paddle {
+	background-color: white;
+	height: 350px;
+	width: 60px;
+}
+
+.Ball {
+	position: absolute;
+	background-color: white;
+	border-radius: 50%;
+	border: 30px white solid;
+	left: 20%;
+	top: 42%;
+	animation: Ball 2s infinite;
+}
+
+@keyframes Ball {
+	0% {
+		transform: translateY(0px);
+	}
+	5% {
+		box-shadow: 20px 0 15px 0 rgba(255, 255, 255, 0.5);
+	}
+	50% {
+		transform: translateY(200px);
+	}
+	100% {
+		transform: translateY(0px);
+	}
+}
+
+.test {
+	position: absolute;
+	background: linear-gradient(white, black);
+	transform: scaleY(-50%);
+	width: 1px;
+	height: 150px;
+	z-index: -1;
+}
+
+.test3 {
+	position: absolute;
+	left: 23%;
+	background: linear-gradient(white, black);
+	transform: scaleY(-50%);
+	width: 1px;
+	height: 150px;
+	z-index: -1;
+} */

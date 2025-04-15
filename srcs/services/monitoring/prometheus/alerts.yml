@@ -1,0 +1,80 @@
+groups:
+  # Alerts for Django service
+  - name: django_alerts 
+    rules:
+      - alert: DjangoHighLatency #If the 95th percentile latency is above 2 seconds, send a warning alert
+        expr: histogram_quantile(0.95, rate(django_http_requests_latency_including_middlewares_seconds_bucket[5m])) > 2
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High Request Latency in Django"
+          description: "The 95th percentile latency (including middleware) is above 2 seconds over the last 5 minutes."
+
+      - alert: DjangoHighExceptionRate # If more than 2 exceptions are recorded in the last 5 minutes, send a critical alert
+        expr: increase(django_http_exceptions_total_by_type_total[5m]) > 2
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High Exception Rate in Django"
+          description: "More than 2 exceptions have been recorded in the last 5 minutes."
+
+  # Alerts for Nginx service
+  - name: nginx_alerts 
+    rules:
+      - alert: NginxDown # If nginx is down (nginx_up equals 0) for more than 1 minute, send a critical alert
+        expr: nginx_up == 0
+        for: 1s
+        labels:
+          severity: critical
+        annotations:
+          summary: "NGINX is Down"
+          description: "NGINX is not responding to metric scrapes (nginx_up equals 0), please take a look."
+
+      - alert: NginxHighActiveConnections # If the number of active connections in NGINX is above 50 for more than 2 minutes, send a warning alert
+        expr: nginx_connections_active > 50
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High Active Connections in NGINX"
+          description: "The number of active connections in NGINX has exceeded 50 for more than 2 minutes, which may indicate a surge in traffic or potential issues."
+  
+  # Alerts for Host machine and OS
+  - name: node_exporter_alerts 
+    rules:
+      - alert: HighCPUUsage #If the CPU usage is greater than 90%
+        expr: (sum(rate(node_cpu_seconds_total{mode!="idle"}[5m])) by (instance)) / (sum(rate(node_cpu_seconds_total[5m])) by (instance)) > 0.9  # CPU usage greater than 90%
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Total CPU usage is high (greater than 90%)."
+          description: "CPU usage exceeds 90%. The system is under heavy load, which could affect performance. Investigate processes consuming excessive CPU."
+
+      - alert: HighMemoryUsage #If the memory usage is greater than 85%
+        expr: (node_memory_Active_bytes / node_memory_MemTotal_bytes) > 0.85
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Memory usage is high (over 85%)."
+          description: "Active memory usage is above 85% of total memory. This could indicate a memory leak or an overloaded system. Investigate to prevent potential crashes."
+  
+  # Alerts for PostgreSQL service
+  - name: postgres_exporter 
+    rules:
+      - alert: PostgreSQLDown # If PostgreSQL is down (pg_up equals 0) for more than 5 minutes
+        expr: pg_up == 0
+        for: 1s
+        annotations:
+          summary: "PostgreSQL is down"
+          description: "The PostgreSQL instance is not responding. Please check the logs and the server status."
+      
+      - alert: LowDiskSpace # If space available is less than 10%
+        expr: node_filesystem_avail_bytes{device="/dev/vda1",fstype="ext4"} < (node_filesystem_size_bytes{device="/dev/vda1",fstype="ext4"} * 0.1)
+        for: 5m
+        annotations:
+          summary: "Low space on database disk"
+          description: "The disk space available on the disk is less than 10%. Please take action to free up space."
