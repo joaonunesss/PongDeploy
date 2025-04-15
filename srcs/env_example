@@ -1,0 +1,51 @@
+#----------NGINX VARIABLES------------------
+COUNTRY=PT
+STATE=MyState
+LOCALITY=MyCity
+ORGANIZATION=my_organization
+NAME=my_project
+
+PYTHONDONTWRITEBYTECODE=1
+PYTHONUNBUFFERED=1
+
+#----------DJANGO VARIABLES------------------
+
+SETTINGS_KEY='your_django_secret_key_here'
+
+#----------DATABASE VARIABLES----------------
+#localdb
+POSTGRES_DB=your_local_db
+POSTGRES_USER=your_local_user
+POSTGRES_PASSWORD=your_local_password
+POSTGRES_HOST=db
+POSTGRES_PORT=5432
+
+#digitalocean db
+#POSTGRES_DB=your_remote_db
+#POSTGRES_USER=your_remote_user
+#POSTGRES_PASSWORD=your_remote_password
+#POSTGRES_HOST=your_remote_host
+#POSTGRES_PORT=25060
+
+#----------MAILGUN SMTP CREDENTIALS----------
+MAILGUN_BACKEND='django.core.mail.backends.smtp.EmailBackend'
+MAILGUN_HOST='smtp.mailgun.org'
+MAILGUN_PORT=587
+MAILGUN_USE_TLS=True
+MAILGUN_USE_SSL=False
+MAILGUN_HOST_USER='your_mailgun_user'
+MAILGUN_HOST_PASSWORD='your_mailgun_password'
+DEFAULT_FROM_MAILGUN='noreply@yourdomain.com'
+
+#----------GRAFANA-----------------------------
+GF_ADMIN_USER=admin
+GF_ADMIN_PASSWORD=your_grafana_password
+GF_ADMIN_EMAIL=your_email@example.com
+
+#----------POSTGRES-EXPORTER-------------------
+DATA_SOURCE_NAME="postgresql://your_remote_user:your_remote_password@your_remote_host:25060/your_remote_db?sslmode=require&connect_timeout=5"
+
+#----------RECEIVERS FOR ALERTMANAGER----------
+ALERT_EMAILS='your_email_1@example.com, your_email_2@example.com'
+
+#-----------------END--------------------------
